@@ -26,34 +26,6 @@ jobs:
       - name: Generate certificates
         run: echo "Generating certificates..."
 
-  check_alive_and_permissions:
-    needs: [validate, create_certs]
-    runs-on: ubuntu-latest
-    name: Check alive branch and permissions
-    permissions:
-      contents: write
-    outputs:
-      WORKFLOW_PERMISSION: ${{ steps.workflow-permission.outputs.has_permission }}
-
-    steps:
-      - name: Check for workflow permissions
-        id: workflow-permission
-        env:
-          TOKEN_TO_CHECK: ${{ secrets.GH_PAT }}
-        run: |
-          PERMISSIONS=$(curl -sS -f -I -H "Authorization: token ${{ env.TOKEN_TO_CHECK }}" https://api.github.com | grep ^x-oauth-scopes: | cut -d' ' -f2-);
-
-          if [[ $PERMISSIONS =~ "workflow" || $PERMISSIONS == "" ]]; then
-            echo "GH_PAT holds workflow permissions or is fine-grained PAT."
-            echo "has_permission=true" >> $GITHUB_OUTPUT
-          else
-            echo "GH_PAT lacks workflow permissions."
-            echo "Automated build features will be skipped!"
-            echo "has_permission=false" >> $GITHUB_OUTPUT
-
-
-
-
 
       - name: Checkout target repo
         if: |
